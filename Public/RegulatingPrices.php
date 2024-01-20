@@ -18,7 +18,8 @@ $address = [
 	],
 ];
 // $date = $DateTime->format('d-m-Y');
-$filename = __DIR__ . '/../Storage/Data/' . $DateTime->format('Y') . '/' . $DateTime->format('m') . '/' . $DateTime->format('Y-m-d') . '-DayAhead.json';
+$storage = __DIR__ . '/../Storage/Data/' . $DateTime->format('Y') . '/' . $DateTime->format('m') . '/RegulatingPrices';
+$filename = '/' . $DateTime->format('Y-m-d') . '.json';
 $url = '';
 
 if (isset($date))
@@ -26,11 +27,12 @@ if (isset($date))
   $address['query']['endDate'] = $date;
 }
 
-if (!file_exists($filename) && !touch($filename))
+if (!Prerequisites($filename, $storage))
 {
 	die('Unable to create data file: ' . $filename . PHP_EOL);
 }
 
+$filename = $storage . $filename;
 $content = file_get_contents($filename);
 
 if (empty($content))
