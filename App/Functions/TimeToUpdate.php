@@ -1,6 +1,6 @@
 <?php
 
-function timeToUpdate($then)
+function TimeToUpdate($then)
 {
 	$now = new DateTime();
 	$past = new DateTime();

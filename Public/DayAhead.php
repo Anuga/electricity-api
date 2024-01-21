@@ -3,7 +3,12 @@
 require_once(__DIR__ . '/head.php');
 
 $DateTime = new DateTime('tomorrow');
-// $DateTime->setDate(2024, 1, 20);
+
+if (defined('YEAR') && defined('MONTH') && defined('DATE'))
+{
+	$DateTime->setDate(YEAR, MONTH, DATE);
+	$date = $DateTime->format('d-m-Y');
+}
 
 /** Day-ahead prices, hourly. */
 $address = [
@@ -14,14 +19,14 @@ $address = [
 		'currency' => ',,SEK,EUR',
 	],
 ];
-$date = $DateTime->format('d-m-Y');
+$force = false;
 $storage = __DIR__ . '/../Storage/Data/' . $DateTime->format('Y') . '/' . $DateTime->format('m') . '/DayAhead';
 $filename = '/' . $DateTime->format('Y-m-d') . '.json';
 $url = '';
 
 if (isset($date))
 {
-  $address['query']['endDate'] = $date;
+	$address['query']['endDate'] = $date;
 }
 
 if (!Prerequisites($filename, $storage))
@@ -34,7 +39,7 @@ $content = file_get_contents($filename);
 
 if (empty($content))
 {
-	$json = update($address, $filename);
+	$json = Update($address, $filename);
 }
 
 if (!isset($json))
@@ -42,9 +47,9 @@ if (!isset($json))
 	$json = json_decode($content);
 }
 
-if (timeToUpdate($json->data->DateUpdated))
+if ($force || TimeToUpdate($json->data->DateUpdated))
 {
-	$json = update($address, $filename);
+	$json = Update($address, $filename);
 }
 
 $modified = gmdate('D, d M Y H:i:s', strtotime($json->data->DateUpdated));
@@ -53,4 +58,11 @@ header("Last-Modified:{$modified} GMT");
 
 list($table, $total) = ParseDayAhead($json);
 
-echo(json_encode(['Table' => $table, 'Average' => round($total / 24, 2), 'Total' => $total]));
+?>
+
+<body>
+	<?php require_once(__DIR__ . '/Menu.php'); ?>
+	<pre>
+<?= json_encode(['Table' => $table, 'Average' => round($total / 24, 2), 'Total' => $total], JSON_PRETTY_PRINT) ?>
+	</pre>
+</body>

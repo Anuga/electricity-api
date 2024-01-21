@@ -1,6 +1,6 @@
 <?php
 
-function update($address, $filename)
+function Update($address, $filename)
 {
 	$json = file_get_contents("{$address['protocol']}://{$address['domain']}{$address['uri']}?" . http_build_query($address['query']));
 
